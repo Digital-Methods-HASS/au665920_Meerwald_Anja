@@ -63,6 +63,8 @@ c) the file structure of your R project in the bottom right "Files" pane.
 
 Save the screenshot as an image and put it in your AUID_lastname_firstname repository inside our Github organisation (github.com/Digital-Methods-HASS) or equivalent. Place here the URL leading to the screenshot in your repository.
 
+file:///Users/anjameerwald/Desktop/Screen%20Shot%202022-09-04%20at%204.08.24%20PM.png
+
 ```{r}
 library(tidyverse)
 
