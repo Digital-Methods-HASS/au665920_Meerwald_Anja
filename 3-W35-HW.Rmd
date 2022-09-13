@@ -1,0 +1,114 @@
+---
+title: "3: W35: Start with R"
+author: Anja Meerwald 
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+2:W35: Start with R
+DESCRIPTION
+
+Instructions: For this assignment, you need to answer a couple questions with code and then take a screenshot of your working environment.
+
+Submit the solutions including the URL to the screenshot in a doc/pdf to Brightspace.
+
+1) Use R to figure out how many elements in the vector below are greater than 2 and then tell me what their sum (of the larger than 2 elements) is.
+
+```{r}
+rooms <- c(1, 2, 4, 5, 1, 3, 1, NA, 3, 1, 3, 2, 1, NA, 1, 8, 3, 1, 4, NA, 1, 3, 1, 2, 1, 7, 1, 9, 3, NA)
+```
+
+
+```{r}
+# showing the amount of elements greater than 2 in the vector, including NAs
+rooms[rooms>2]
+```
+
+
+```{r}
+# calculating the total number of rooms greater than 2 (=12)
+sum(rooms>2, na.rm = TRUE)
+```
+
+
+```{r}
+# removing the NAs
+rooms_omitNA <- na.omit(rooms)
+
+# creating a new vector with only rooms 3 or more 
+big_rooms <- rooms_omitNA[!(rooms_omitNA < 3)]
+
+# the total of those amount of rooms, 55 
+sum(big_rooms)
+  
+```
+
+2) What type of data is in the 'rooms' vector?
+
+```{r}
+class(rooms)
+```
+
+3) Submit the following image to Github: Inside your R Project (.Rproj), install the 'tidyverse' package and use the download.file() and read_csv() function to read the SAFI_clean.csv dataset into your R project as 'interviews' digital object (see instructions in https://datacarpentry.org/r-socialsci/setup.html and 'Starting with Data' section). Take a screenshot of your RStudio interface showing
+
+a) the line of code you used to create the object,
+
+b) the 'interviews' object in the Environment, and
+
+c) the file structure of your R project in the bottom right "Files" pane.
+
+Save the screenshot as an image and put it in your AUID_lastname_firstname repository inside our Github organisation (github.com/Digital-Methods-HASS) or equivalent. Place here the URL leading to the screenshot in your repository.
+
+```{r}
+library(tidyverse)
+
+interviews <- read_csv("data/SAFI_clean.csv", na = "NULL")
+
+# can also use the downlaod.file() command but didn't need to since I have the file already in my data folder 
+# download.file("https://ndownloader.figshare.com/files/11492171","data/SAFI_clean.csv", mode = "wb")
+
+```
+
+4) Challenge: If you managed to create your own Danish king dataset, use it. If not, you the one attached to this assignment (it might need to be cleaned up a bit). Load the dataset into R as a tibble. Calculate the mean() and median() duration of rule over time and find the three mondarchs ruling the longest. How many days did they rule (accounting for transition year?)
+
+```{r}
+kings <- read_csv2("data/kings.csv")
+
+# removing NAs and putting it into a new df 
+kings_noNA <- na.omit(kings)
+
+# getting a overview of what the df looks like 
+str(kings_noNA)
+
+# making the yearsaruler variable numeric 
+kings_noNA$Yearasruler <- as.numeric(kings_noNA$Yearasruler)
+
+str(kings_noNA)
+
+# mean of the years a ruler variable 
+mean(kings_noNA$Yearasruler) 
+
+# median of the years a ruler variable 
+median(kings_noNA$Yearasruler)
+
+# can see the kings in order from most years to least years 
+kings_noNA %>% 
+  arrange(desc(Yearasruler))
+
+# working with just the top three rulers in terms of time and putting them into their own data frame  
+kings_top <- kings_noNA %>% 
+  arrange(desc(Yearasruler)) %>% 
+  slice(1:3)
+kings_top
+  
+# multiplying the years a ruler column by 365 days in a year and adding another 365 for the transition year; also adding it to the kings top data frame  
+kings_top$years2days <- (kings_top$Yearasruler*365) + 365
+kings_top
+
+```
+
+
