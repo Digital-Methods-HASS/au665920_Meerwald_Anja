@@ -1,0 +1,93 @@
+---
+title: "HW6 - Practicing functions with Gapminder"
+author: "Anja Meerwald"
+date: "10/30/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(gapminder)
+
+# taking the gapminder data and turning it into a dataframe 
+df <- as.data.frame(gapminder)
+```
+
+1. Define a defensive function that calculates the Gross Domestic Product of a nation from the data available in the gapminder dataset. You can use the population and GDPpercapita columns for it. Using that function, calculate the GDP of Denmark in the following years: 1967, 1977, 1987, 1997, 2007, and 2017.
+
+```{r}
+
+# creating the function, used from https://swcarpentry.github.io/r-novice-gapminder/10-functions/index.html
+
+calcGDP <- function(dat, year=NULL, country=NULL) { # defining the name of the function and which variables are included. They will be null if not specified 
+  if(!is.null(year)) {   # if it's not null, then...
+    dat <- dat[dat$year %in% year, ]   # creates a temporary variable dat which takes the subsetted data by year if it's specified 
+  }
+  if (!is.null(country)) {
+    dat <- dat[dat$country %in% country,]  # same as above, subsetting by country if provided 
+  }
+  gdp <- dat$pop * dat$gdpPercap  # calculating the gdp with the population and gdpPercap variables 
+
+  new <- cbind(dat, gdp=gdp) # pputs that subsetted data from above with a new gdp column and treturns the result 
+  return(new)
+}
+
+# calculating Denmark's GDP in the specified years except for 2017 because it's not included in the dataset 
+calcGDP(gapminder, country = "Denmark", year = c(1967, 1977, 1987, 1997, 2007, 2017))
+```
+
+2. Write a script that loops over each country in the gapminder dataset, tests whether the country starts with a ‘B’ , and prints out whether the life expectancy is smaller than 50, between 50 and 70, or greater than 70. (Hint: remember the grepl function, and review the Control Flow tutorial)
+
+```{r}
+
+lowerThreshold <- 50
+upperThreshold <- 70
+
+
+B_countries <- grep("^B", unique(df$country), value = TRUE) # using grep to find countries that start with 'B' and assigning them to the new variable, B_countries
+
+for (iCountry in B_countries) {    # looping through the countries within the B_countries variable 
+    tmp <- mean(df[df$country == iCountry, "lifeExp"])   # getting the mean life expectancy 
+# using the lower and upper thresholds to determine the printed output 
+    if (tmp < lowerThreshold) {   
+        cat("Average Life Expectancy in", iCountry, "is less than", lowerThreshold, "\n") # if the life expectancy is less than 50, print it's less than
+    } else if(tmp > lowerThreshold && tmp < upperThreshold) {   # if the life expectancy is between 50-70, print it is between
+        cat("Average Life Expectancy in", iCountry, "is between", lowerThreshold, "and", upperThreshold, "\n")
+    } else {
+        cat("Average Life Expectancy in", iCountry, "is greater than", upperThreshold, "\n") # and if it's greater than 70, print that
+    } # end if
+    rm(tmp)
+} # end for loop
+
+```
+
+3. Challenge/Optional: Write a script that loops over each country in the gapminder dataset, tests whether the country starts with a ‘M’ and graphs life expectancy against time (using plot() function) as a line graph if the mean life expectancy is under 50 years.
+
+```{r}
+
+thresholdValue <- 50 # setting the threshold to 50 years 
+candidateCountries <- grep("^M", unique(gapminder$country), value = TRUE) # using grep to find countries that start with 'M' and assigning them to the new variable, M_countries
+
+for (iCountry in candidateCountries) {   # looping through the countries within the M_countries variable 
+    tmp <- mean(df[df$country == iCountry, "lifeExp"]) # calculating mean life expectancy 
+
+    if (tmp < thresholdValue) { # if the mean life expectancy is less than the threshold (50), print that and the plot it 
+        cat("Average Life Expectancy in", iCountry, "is less than", thresholdValue, "plotting life expectancy graph... \n")
+
+        with(subset(gapminder, country == iCountry),  # 
+                plot(year, lifeExp,
+                     type = "o",
+                     main = paste("Life Expectancy in", iCountry, "over time"),
+                     ylab = "Life Expectancy",
+                     xlab = "Year"
+                     ) # end plot
+             ) # end with
+    } # end if
+    rm(tmp)
+}
+
+```
+
+
